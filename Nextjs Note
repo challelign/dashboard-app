@@ -1,0 +1,25 @@
+#
+
+Using the clsx library to toggle class names
+There may be cases where you may need to conditionally style an element based on state or some other condition.
+
+clsx is a library that lets you toggle class names easily. We recommend taking a look at documentation for more details, but here's the basic usage:
+
+Suppose that you want to create an InvoiceStatus component which accepts status. The status can be 'pending' or 'paid'.
+If it's 'paid', you want the color to be green. If it's 'pending', you want the color to be gray.
+
+#
+
+How does Next.js optimize fonts?
+Next.js downloads font files at build time and hosts them with your other static assets. This means when a user visits your application, there are no additional network requests for fonts which would impact performance.
+#
+What is the purpose of the layout file in Next.js?
+the layout file is the best way to create a shared layout that all pages in your application can use.
+
+# The <Link> component
+the Link component is similar to using <a> tags, but instead of <a href="…">, you use <Link href="…">.
+
+Save your changes and check to see if it works in your localhost. You should now be able to navigate between the pages without seeing a full refresh. Although parts of your application are rendered on the server, there's no full page refresh, making it feel like a web app
+
+What does Next.js do when a <Link> component appears in the browser’s viewport in a production environment?
+    Next.js automatically prefetches the code for the linked route in the background. By the time the user clicks the link, the code for the destination page will already be loaded in the background, and this is what makes the page transition near-instant!
