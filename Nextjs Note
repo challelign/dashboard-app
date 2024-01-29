@@ -12,14 +12,75 @@ If it's 'paid', you want the color to be green. If it's 'pending', you want the 
 
 How does Next.js optimize fonts?
 Next.js downloads font files at build time and hosts them with your other static assets. This means when a user visits your application, there are no additional network requests for fonts which would impact performance.
+
 #
+
 What is the purpose of the layout file in Next.js?
 the layout file is the best way to create a shared layout that all pages in your application can use.
 
 # The <Link> component
+
 the Link component is similar to using <a> tags, but instead of <a href="…">, you use <Link href="…">.
 
 Save your changes and check to see if it works in your localhost. You should now be able to navigate between the pages without seeing a full refresh. Although parts of your application are rendered on the server, there's no full page refresh, making it feel like a web app
 
 What does Next.js do when a <Link> component appears in the browser’s viewport in a production environment?
-    Next.js automatically prefetches the code for the linked route in the background. By the time the user clicks the link, the code for the destination page will already be loaded in the background, and this is what makes the page transition near-instant!
+Next.js automatically prefetches the code for the linked route in the background. By the time the user clicks the link, the code for the destination page will already be loaded in the background, and this is what makes the page transition near-instant!
+
+# When might you want to use a waterfall pattern?
+
+To satisfy a condition before making the next request
+For example, you might want to fetch a user's ID and profile information first. Once you have the ID, you might then proceed to fetch their list of friends.
+
+# Parallel data fetching
+
+A common way to avoid waterfalls is to initiate all data requests at the same time - in parallel.
+In JavaScript, you can use the Promise.all() or Promise.allSettled() functions to initiate all promises at the same time
+
+# Chapter 8
+
+# Static and Dynamic Rendering
+
+Whenever a user visits your application, the cached result is served. There are a couple of benefits of static rendering:
+
+Faster Websites - Prerendered content can be cached and globally distributed. This ensures that users around the world can access your website's content more quickly and reliably.
+Reduced Server Load - Because the content is cached, your server does not have to dynamically generate content for each user request.
+SEO - Prerendered content is easier for search engine crawlers to index, as the content is already available when the page loads. This can lead to improved search engine rankings.
+
+# What is Dynamic Rendering?
+
+With dynamic rendering, content is rendered on the server for each user at request time (when the user visits the page). There are a couple of benefits of dynamic rendering:
+
+Real-Time Data - Dynamic rendering allows your application to display real-time or frequently updated data. This is ideal for applications where data changes often.
+User-Specific Content - It's easier to serve personalized content, such as dashboards or user profiles, and update the data based on user interaction.
+Request Time Information - Dynamic rendering allows you to access information that can only be known at request time, such as cookies or the URL search parameters.
+
+# Chapter 9
+
+Streaming
+Streaming is a data transfer technique that allows you to break down a route into smaller "chunks" and progressively stream them from the server to the client as they become ready.
+By streaming, you can prevent slow data requests from blocking your whole page. This allows the user to see and interact with parts of the page without waiting for all the data to load before any UI can be shown to the user.
+There are two ways you implement streaming in Next.js:
+
+At the page level, with the loading.tsx file.
+For specific components, with <Suspense>.
+
+# What is one advantage of streaming?
+
+Chunks are rendered in parallel, reducing the overall load time
+
+One advantage of this approach is that you can significantly reduce your page's overall loading time.
+
+# Route Groups
+
+In the app directory, nested folders are normally mapped to URL paths. However, you can mark a folder as a Route Group to prevent the folder from being included in the route's URL path.
+Convention
+A route group can be created by wrapping a folder's name in parenthesis: (folderName)
+https://nextjs.org/docs/app/building-your-application/routing/route-groups
+Route groups allow you to organize files into logical groups without affecting the URL path structure. When you create a new folder using parentheses (), the name won't be included in the URL path. So /dashboard/(overview)/page.tsx becomes /dashboard.
+
+# Suspense
+
+Suspense allows you to defer rendering parts of your application until some condition is met (e.g. data is loaded). You can wrap your dynamic components in Suspense. Then, pass it a fallback component to show while the dynamic component loads.
+
+# Partial Prerendering (Optional)

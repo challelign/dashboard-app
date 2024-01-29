@@ -1,7 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-import { unstable_noStore as noStore } from 'next/cache';
-
-const prisma = new PrismaClient();
+import { sql } from '@vercel/postgres';
 import {
   CustomerField,
   CustomersTableType,
@@ -9,14 +6,14 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   User,
-  // Revenue,
+  Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
-  noStore();
+
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
@@ -24,133 +21,36 @@ export async function fetchRevenue() {
     // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const data = await prisma.revenue.findMany();
+    const data = await sql<Revenue>`SELECT * FROM revenue`;
 
     // console.log('Data fetch completed after 3 seconds.');
 
-    return data;
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
-  } finally {
-    await prisma.$disconnect(); // Close the Prisma Client connection
   }
 }
 
 export async function fetchLatestInvoices() {
   try {
-    noStore();
-    // const latestInvoices2 = await prisma.Invoice.findMany({});
-    // console.log('latestInvoices2', latestInvoices2);
+    const data = await sql<LatestInvoiceRaw>`
+      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
+      FROM invoices
+      JOIN customers ON invoices.customer_id = customers.id
+      ORDER BY invoices.date DESC
+      LIMIT 5`;
 
-    const latestInvoices = await prisma.invoice.findMany({
-      select: {
-        amount: true,
-        customer: {
-          select: {
-            name: true,
-            image_url: true,
-            email: true,
-          },
-        },
-        id: true,
-      },
-      orderBy: {
-        date: 'desc',
-      },
-      take: 5,
-    });
-
-    // YOU CAN UNCOMMENT AND USE THIS CODE IT IS THE SAME
-    /*     const latestInvoices = await prisma.invoice.findMany({
-      include: {
-        customer: {
-          select: {
-            name: true,
-            image_url: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: {
-        date: 'desc',
-      },
-      take: 5,
-    }); */
-
-    console.log('latestInvoices', latestInvoices);
-
-    const formattedInvoices = latestInvoices.map((invoice: any) => ({
+    const latestInvoices = data.rows.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
-    // console.log('formattedInvoices', formattedInvoices);
-
-    return formattedInvoices;
+    return latestInvoices;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the latest invoices.');
-  } finally {
-    await prisma.$disconnect(); // Close the Prisma Client connection
   }
 }
-
-export async function fetchCardData() {
-  // You can probably combine these into a single SQL query
-  // However, we are intentionally splitting them to demonstrate
-  // how to initialize multiple queries in parallel with JS.
-  try {
-    noStore();
-    // Query to fetch the number of invoices
-    const numberOfInvoices = await prisma.invoice.count();
-    // Query to fetch the number of customers
-    const numberOfCustomers = await prisma.customer.count();
-    // Query to fetch the total paid and pending invoices
-    const pendingCountPending = await prisma.invoice.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        status: 'pending',
-      },
-    });
-    // console.log(pendingCountPending);
-
-    const invoiceStatusPaid = await prisma.invoice.aggregate({
-      _sum: {
-        amount: true,
-      },
-      where: {
-        status: 'paid',
-      },
-    });
-    // console.log(invoiceStatusPaid);
-
-    const totalPaidInvoices = formatCurrency(
-      invoiceStatusPaid._sum.amount ?? 0,
-    );
-    const totalPendingInvoices = formatCurrency(
-      pendingCountPending._sum.amount ?? 0,
-    );
-    // console.log('totalPaidInvoices', totalPaidInvoices);
-    // console.log('totalPendingInvoices', totalPendingInvoices);
-    // console.log('numberOfCustomers', numberOfCustomers);
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.log(error);
-    console.error('Prisma Error:', error);
-    throw new Error('Failed to fetch card data.');
-  } finally {
-    await prisma.$disconnect(); // Close the Prisma Client connection
-  }
-}
-/* 
-
 
 export async function fetchCardData() {
   try {
@@ -328,4 +228,4 @@ export async function getUser(email: string) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
   }
-} */
+}

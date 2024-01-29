@@ -172,9 +172,9 @@ async function main() {
   try {
     await seedUsers();
     await seedCustomers();
-    await seedInvoices();
-
     await seedRevenue();
+
+    await seedInvoices();
   } catch (err) {
     console.error(
       'An error occurred while attempting to seed the database:',

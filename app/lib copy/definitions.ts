@@ -32,7 +32,6 @@ export type Revenue = {
 };
 
 export type LatestInvoice = {
-  customer: any;
   id: string;
   name: string;
   image_url: string;
