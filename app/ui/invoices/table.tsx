@@ -13,7 +13,6 @@ export default async function InvoicesTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredInvoices(query, currentPage);
-  // console.log(invoices.customer.name[1]);
   console.log(invoices);
 
   return (
