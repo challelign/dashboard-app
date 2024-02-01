@@ -257,7 +257,7 @@ export async function fetchCustomers() {
 
 export async function fetchInvoiceById(id: string) {
   console.log(id);
-
+  noStore();
   const invoiceId = Number(id);
   try {
     const data = await prisma.invoice.findUnique({

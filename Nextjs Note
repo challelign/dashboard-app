@@ -125,3 +125,15 @@ Progressive Enhancement.This allows users to interact with the form and submit d
 Next.js has a Client-side Router Cache that stores the route segments in the user's browser for a time. Along with prefetching, this cache ensures that users can quickly navigate between routes while reducing the number of requests made to the server.
 
 Since you're updating the data displayed in the invoices route, you want to clear this cache and trigger a new request to the server. You can do this with the revalidatePath function from Next.js:
+
+# Chapter 13
+
+Handling Errors
+Handling all errors with error.tsx
+The error.tsx file can be used to define a UI boundary for a route segment. It serves as a catch-all for unexpected errors and allows you to display a fallback UI to your users.
+
+# Chapter 14
+
+Improving Accessibility
+What is accessibility?
+Accessibility refers to designing and implementing web applications that everyone can use, including those with disabilities. It's a vast topic that covers many areas, such as keyboard navigation, semantic HTML, images, colors, videos, etc.
