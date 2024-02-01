@@ -46,6 +46,7 @@ export type LatestInvoiceRaw = Omit<LatestInvoice, 'amount'> & {
 };
 
 export type InvoicesTable = {
+  customer: any;
   id: string | number;
   customer_id: string;
   name: string;

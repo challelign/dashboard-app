@@ -1,7 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 import { unstable_noStore as noStore } from 'next/cache';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['info', 'query', 'warn', 'error'],
+});
+
 import {
   CustomerField,
   CustomersTableType,
@@ -12,6 +16,10 @@ import {
   // Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
+import { invoices } from './placeholder-data';
+import { count } from 'console';
+import { data } from 'autoprefixer';
+import { equal } from 'assert';
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -84,7 +92,7 @@ export async function fetchLatestInvoices() {
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
-    // console.log('formattedInvoices', formattedInvoices);
+    console.log('formattedInvoices', formattedInvoices);
 
     return formattedInvoices;
   } catch (error) {
@@ -149,6 +157,164 @@ export async function fetchCardData() {
     await prisma.$disconnect(); // Close the Prisma Client connection
   }
 }
+const ITEMS_PER_PAGE = 6;
+
+export async function fetchFilteredInvoices(
+  query: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const invoices = await prisma.invoice.findMany({
+      select: {
+        id: true,
+        amount: true,
+        date: true,
+        status: true,
+        customer_id: true,
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            image_url: true,
+            email: true,
+          },
+        },
+      },
+
+      where: {
+        OR: [
+          { status: { contains: query } },
+          // { amount: { equals: Number(query) } },
+          // { date: { equals: new Date(query) } },
+          { customer_id: { contains: query } },
+          { customer_id: { contains: query } },
+          { customer: { name: { contains: query } } },
+          { customer: { email: { contains: query } } },
+        ],
+      },
+      orderBy: {
+        date: 'desc',
+      },
+      take: ITEMS_PER_PAGE,
+      skip: offset,
+    });
+
+    // console.log(JSON.stringify(invoices, null, 2));
+    console.log(invoices);
+    return invoices;
+  } catch (error) {
+    console.log(error);
+    console.log(invoices);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch invoices.');
+  }
+}
+export async function fetchInvoicesPages(query: string) {
+  // console.log(query);
+  try {
+    const count = await prisma.invoice.count({
+      where: {
+        OR: [
+          { status: { contains: query } },
+          { customer_id: { contains: query } },
+          { customer: { name: { contains: query } } },
+          { customer: { email: { contains: query } } },
+        ],
+      },
+    });
+    // console.log('count=>', count);
+    const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
+    console.log('totalPages =>', totalPages);
+
+    return totalPages;
+  } catch (error) {
+    console.log(count);
+    console.log(error);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of invoices.');
+  }
+}
+export async function fetchCustomers() {
+  try {
+    const data = await prisma.customer.findMany({
+      select: {
+        name: true,
+        id: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    // console.log(data);
+    return data;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all customers.');
+  }
+}
+
+export async function fetchInvoiceById(id: string) {
+  console.log(id);
+
+  const invoiceId = Number(id);
+  try {
+    const data = await prisma.invoice.findUnique({
+      select: {
+        id: true,
+        amount: true,
+        date: true,
+        status: true,
+        customer_id: true,
+      },
+      where: {
+        id: invoiceId,
+      },
+    });
+    if (!data) {
+      console.log(data);
+      throw new Error('Invoice not found.');
+    }
+    // Convert amount from cents to dollars
+    const invoice = {
+      ...data,
+      amount: data.amount / 100,
+    };
+
+    // const invoice = data?.map((invoice: InvoiceForm) => ({
+    //   ...invoice,
+    //   amount: data.amount / 100,
+    // }));
+    console.log(invoice);
+    return invoice;
+  } catch (error) {
+    console.log(data);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch invoice.');
+  }
+}
+
+// export async function fetchInvoicesPages(query: string) {
+//   try {
+//     const count = await sql`SELECT COUNT(*)
+//     FROM invoices
+//     JOIN customers ON invoices.customer_id = customers.id
+//     WHERE
+//       customers.name ILIKE ${`%${query}%`} OR
+//       customers.email ILIKE ${`%${query}%`} OR
+//       invoices.amount::text ILIKE ${`%${query}%`} OR
+//       invoices.date::text ILIKE ${`%${query}%`} OR
+//       invoices.status ILIKE ${`%${query}%`}
+//   `;
+
+//     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+//     return totalPages;
+//   } catch (error) {
+//     console.error('Database Error:', error);
+//     throw new Error('Failed to fetch total number of invoices.');
+//   }
+// }
 /* 
 
 
