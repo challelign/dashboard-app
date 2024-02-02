@@ -8,7 +8,7 @@ import heroMobile from '../public/hero-mobile.png';
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col p-6">
-      <Image
+      {/*   <Image
         src="/hero-desktop.png"
         width={1000}
         height={760}
@@ -21,8 +21,10 @@ export default function Page() {
         height={620}
         className="hidden md:block"
         alt="Screenshots of the dashboard project showing desktop version"
-      />
-      <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
+      /> */}
+      {/* <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52"> */}
+
+      <div className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-500 p-4">
         <AcmeLogo />
       </div>
       <div className="mt-4 flex grow flex-col gap-4 md:flex-row">

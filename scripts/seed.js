@@ -12,14 +12,14 @@ const prisma = new PrismaClient();
 async function seedUsers() {
   try {
     // Create the "users" table if it doesn't exist
-    // await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS user (
-    //   id VARCHAR(36) NOT NULL PRIMARY KEY,
-    //   name VARCHAR(255) NOT NULL,
-    //   email VARCHAR(255) NOT NULL UNIQUE,
-    //   password TEXT NOT NULL
-    // )`;
+    /*   await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS user (
+      id VARCHAR(36) NOT NULL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password TEXT NOT NULL
+    )`; */
 
-    console.log(`Created "users" table`);
+    // console.log(`Created "users" table`);
 
     // Insert data into the "users" table
     const insertedUsers = await Promise.all(
@@ -54,15 +54,15 @@ async function seedUsers() {
 async function seedInvoices() {
   try {
     // Create the "invoices" table if it doesn't exist
-    // await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Invoice (
-    //   id VARCHAR(36) NOT NULL PRIMARY KEY,
-    //   customer_id VARCHAR(36) NOT NULL,
-    //   amount INT NOT NULL,
-    //   status VARCHAR(255) NOT NULL,
-    //   date DATE NOT NULL
-    // )`;
+    /*     await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Invoice (
+      id VARCHAR(36) NOT NULL PRIMARY KEY,
+      customer_id VARCHAR(36) NOT NULL,
+      amount INT NOT NULL,
+      status VARCHAR(255) NOT NULL,
+      date DATE NOT NULL
+    )`; */
 
-    console.log(`Created "Invoice" table`);
+    // console.log(`Created "Invoice" table`);
 
     // Insert data into the "Invoice" table
     const insertedInvoices = await prisma.invoice.createMany({
@@ -94,15 +94,15 @@ async function seedInvoices() {
 async function seedCustomers() {
   try {
     // Create the "customers" table if it doesn't exist
-    // await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Customer (
-    //   id VARCHAR(36) NOT NULL PRIMARY KEY,
-    //   name VARCHAR(255) NOT NULL,
-    //   email VARCHAR(255) NOT NULL,
-    //   image_url VARCHAR(255) NOT NULL
-    //   image_url VARCHAR(255) NOT NULL
-    // )`;
+    /*   await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Customer (
+      id VARCHAR(36) NOT NULL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      image_url VARCHAR(255) NOT NULL
+      image_url VARCHAR(255) NOT NULL
+    )`; */
 
-    console.log(`Created "Customer" table`);
+    // console.log(`Created "Customer" table`);
 
     // Insert data into the "Customer" table
     const insertedCustomers = await Promise.all(
@@ -135,12 +135,12 @@ async function seedCustomers() {
 async function seedRevenue() {
   try {
     // Create the "revenue" table if it doesn't exist
-    await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Revenue (
+    /*   await prisma.$executeRaw`CREATE TABLE IF NOT EXISTS Revenue (
       month VARCHAR(4) NOT NULL PRIMARY KEY,
       revenue INT NOT NULL
     )`;
-
-    console.log(`Created "Revenue" table`);
+ */
+    // console.log(`Created "Revenue" table`);
 
     // Insert data into the "Revenue" table
     const insertedRevenue = await Promise.all(

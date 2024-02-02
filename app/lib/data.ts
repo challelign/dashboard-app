@@ -16,10 +16,11 @@ import {
   // Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
-import { invoices } from './placeholder-data';
+import { customers, invoices } from './placeholder-data';
 import { count } from 'console';
 import { data } from 'autoprefixer';
-import { equal } from 'assert';
+
+const ITEMS_PER_PAGE = 6;
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -48,8 +49,6 @@ export async function fetchRevenue() {
 export async function fetchLatestInvoices() {
   try {
     noStore();
-    // const latestInvoices2 = await prisma.Invoice.findMany({});
-    // console.log('latestInvoices2', latestInvoices2);
 
     const latestInvoices = await prisma.invoice.findMany({
       select: {
@@ -68,23 +67,6 @@ export async function fetchLatestInvoices() {
       },
       take: 5,
     });
-
-    // YOU CAN UNCOMMENT AND USE THIS CODE IT IS THE SAME
-    /*     const latestInvoices = await prisma.invoice.findMany({
-      include: {
-        customer: {
-          select: {
-            name: true,
-            image_url: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: {
-        date: 'desc',
-      },
-      take: 5,
-    }); */
 
     console.log('latestInvoices', latestInvoices);
 
@@ -157,7 +139,6 @@ export async function fetchCardData() {
     await prisma.$disconnect(); // Close the Prisma Client connection
   }
 }
-const ITEMS_PER_PAGE = 6;
 
 export async function fetchFilteredInvoices(
   query: string,
@@ -210,6 +191,7 @@ export async function fetchFilteredInvoices(
     throw new Error('Failed to fetch invoices.');
   }
 }
+
 export async function fetchInvoicesPages(query: string) {
   // console.log(query);
   try {
@@ -235,6 +217,7 @@ export async function fetchInvoicesPages(query: string) {
     throw new Error('Failed to fetch total number of invoices.');
   }
 }
+
 export async function fetchCustomers() {
   try {
     const data = await prisma.customer.findMany({
@@ -295,203 +278,125 @@ export async function fetchInvoiceById(id: string) {
   }
 }
 
-// export async function fetchInvoicesPages(query: string) {
-//   try {
-//     const count = await sql`SELECT COUNT(*)
-//     FROM invoices
-//     JOIN customers ON invoices.customer_id = customers.id
-//     WHERE
-//       customers.name ILIKE ${`%${query}%`} OR
-//       customers.email ILIKE ${`%${query}%`} OR
-//       invoices.amount::text ILIKE ${`%${query}%`} OR
-//       invoices.date::text ILIKE ${`%${query}%`} OR
-//       invoices.status ILIKE ${`%${query}%`}
-//   `;
-
-//     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-//     return totalPages;
-//   } catch (error) {
-//     console.error('Database Error:', error);
-//     throw new Error('Failed to fetch total number of invoices.');
-//   }
-// }
-/* 
-
-
-export async function fetchCardData() {
-  try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ]);
-
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
-
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
-  }
-}
-
-const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
+export async function fetchFilteredCustomers(
   query: string,
   currentPage: number,
 ) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
   try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    /*    const total_invoices = await prisma.invoice.count({
+      where: {
+        OR: [
+          { customer: { name: { contains: query } } },
+          { customer: { email: { contains: query } } },
+        ],
+      },
+    });
+    console.log(total_invoices);
+     */
+    /* 
+    const totalPendingInvoices = await prisma.invoice.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        status: 'pending',
+      },
+    });
 
-    return invoices.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
-  }
-}
+    const total_pending = formatCurrency(totalPendingInvoices._sum.amount ?? 0);
+    console.log(totalPendingInvoices._sum.amount);
+    console.log(total_pending);
 
-export async function fetchInvoicesPages(query: string) {
-  try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+    const totalPaidInvoices = await prisma.invoice.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        status: 'paid',
+      },
+    });
+    const total_paid = formatCurrency(totalPaidInvoices._sum.amount ?? 0);
+    console.log(total_paid); 
+    */
+    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+    const dataCustomer = await prisma.customer.findMany({
+      include: {
+        // invoices: true,
+        invoices: {
+          orderBy: {
+            date: 'desc',
+          },
+        },
+      },
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,
+            },
+          },
+          {
+            email: {
+              contains: query,
+            },
+          },
+        ],
+      },
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
-  }
-}
+      take: ITEMS_PER_PAGE,
+      skip: offset,
+    });
 
-export async function fetchInvoiceById(id: string) {
-  try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+    const customers = dataCustomer.map((customer) => {
+      console.log(customer);
+      const totalPaid = customer.invoices
+        .filter((invoice) => invoice.status === 'paid')
+        .reduce((sum, invoice) => sum + invoice.amount, 0);
+      const total_paid = formatCurrency(totalPaid ?? 0);
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
+      const totalPending = customer.invoices
+        .filter((invoice) => invoice.status === 'pending')
+        .reduce((sum, invoice) => sum + invoice.amount, 0);
+      const total_pending = formatCurrency(totalPending ?? 0);
+      const total_invoices = customer.invoices.length;
+      // console.log(total_invoices);
 
-    return invoice[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
-  }
-}
-
-export async function fetchCustomers() {
-  try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    const customers = data.rows;
+      return {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        image_url: customer.image_url,
+        total_invoices,
+        total_paid,
+        total_pending,
+      };
+    });
+    console.log(customers);
     return customers;
   } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
-}
-
-export async function fetchFilteredCustomers(query: string) {
-  try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
+    console.log(data);
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
   }
 }
 
-export async function getUser(email: string) {
+export async function fetchCustomersPages(query: string) {
+  console.log(query);
   try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
+    const count = await prisma.customer.count({
+      where: {
+        OR: [{ name: { contains: query } }, { email: { contains: query } }],
+      },
+    });
+    console.log('count=>', count);
+    const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
+    console.log('totalPages =>', totalPages);
+
+    return totalPages;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
+    console.log(count);
+    console.log(error);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of invoices.');
   }
-} */
+}
