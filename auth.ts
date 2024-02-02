@@ -16,7 +16,7 @@ async function getUser(email: string): Promise<UserInterface | undefined> {
         email: email,
       },
     });
-    console.log(userData);
+    console.log('userData ==>', userData);
     return userData;
   } catch (error) {
     console.error('Failed to fetch user:', error);
@@ -41,8 +41,15 @@ export const { auth, signIn, signOut } = NextAuth({
           const user = await getUser(email);
           console.log(user);
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
-
+          if (passwordsMatch) {
+            // return user;
+            return {
+              id: user.id, // Assuming the user object has an `id` property
+              name: user.name,
+              email: user.email,
+              //   // Add any other relevant user data you want to access later
+            };
+          }
           if (!user) return null;
         }
 

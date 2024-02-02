@@ -6,8 +6,10 @@ export default function AcmeLogo() {
     <div
       className={`${lusitana.className} flex flex-row items-center leading-none text-white`}
     >
-      <GlobeAltIcon className="h-12 w-12 rotate-[15deg]" />
-      <p className="text-[44px]">cha</p>
+      <GlobeAltIcon className="h-12 w-20 rotate-[15deg] " />
+      <p className="  content-center justify-center text-[30px]   sm:text-[20px]  md:text-[20px] ">
+        Full-stack app
+      </p>
     </div>
   );
 }
