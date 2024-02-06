@@ -13,7 +13,6 @@ export default async function InvoicesTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredInvoices(query, currentPage);
-  console.log(invoices);
 
   return (
     <div className="mt-6 flow-root">
@@ -36,7 +35,6 @@ export default async function InvoicesTable({
                         alt={`${invoice.customer.name}'s profile picture`}
                       />
                       <p> {invoice.customer.name}</p>
-                      <p> {invoice.name}</p>
                     </div>
                     <p className="text-sm text-gray-500">
                       {invoice.customer.email}
@@ -53,7 +51,7 @@ export default async function InvoicesTable({
                   </div>
                   <div className="flex justify-end gap-2">
                     <UpdateInvoice id={invoice.id} />
-                    <DeleteInvoice id={invoice.id} />
+                    <DeleteInvoice id={invoice.id} invoice={invoice} />
                   </div>
                 </div>
               </div>
@@ -115,7 +113,9 @@ export default async function InvoicesTable({
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
                       <UpdateInvoice id={invoice.id} />
-                      <DeleteInvoice id={invoice.id} />
+                      {/* <DeleteInvoice id={invoice.id} /> */}
+
+                      <DeleteInvoice id={invoice.id} invoice={invoice} />
                     </div>
                   </td>
                 </tr>
