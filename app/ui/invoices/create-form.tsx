@@ -10,13 +10,21 @@ import {
 import { Button } from '@/app/ui/button';
 import { createInvoice } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
-
+import toast from 'react-hot-toast';
+import { redirect } from 'next/navigation';
+import { useEffect } from 'react';
 export default function Form({ customers }: { customers: CustomerField[] }) {
   // console.log(customers);
-  const initialState = { message: null, errors: {} };
+  const initialState = { message: null, errors: {}, success: false };
 
   const [state, dispatch] = useFormState(createInvoice, initialState);
-  // console.log(state);
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success(state.message);
+      redirect('/dashboard/invoices');
+    }
+  }, [state.success, state.message]);
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">

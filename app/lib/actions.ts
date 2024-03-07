@@ -29,6 +29,7 @@ export type State = {
     status?: string[];
   };
   message?: string | null;
+  success: boolean | null;
 };
 // create Invoice
 
@@ -65,7 +66,12 @@ export async function createInvoice(prevState: State, formData: FormData) {
         date: date,
       },
     });
-    console.log(newInvoice);
+    // console.log(newInvoice);
+    revalidatePath('/dashboard/invoices');
+    return {
+      success: true,
+      message: 'Invoice Create successfully.',
+    };
   } catch (error) {
     return {
       message: 'Database Error: Failed to Create Invoice.',
@@ -112,8 +118,13 @@ export async function updateInvoice(
         id: id,
       },
     });
-
+    revalidatePath('/dashboard/invoices');
     console.log(updateInvoice);
+    // If update is successful, include a success message in the state
+    return {
+      success: true,
+      message: 'Invoice updated successfully.',
+    };
   } catch (error) {
     return { message: 'Database Error: Failed to Update Invoice.' };
   }

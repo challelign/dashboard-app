@@ -8,6 +8,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { InvoicesTable } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/utils';
 import ConfirmationDeleteDialog from './ConfirmationDeleteDialog';
+import toast from 'react-hot-toast';
 export function CreateInvoice() {
   return (
     <Link
@@ -196,6 +197,7 @@ export function DeleteInvoice({
     // Perform the actual deletion logic here
     // import { deleteInvoice } from '@/app/lib/actions';
     deleteInvoice(id);
+    toast.success('Invoice deleted Successfully');
     setShowConfirmation(false);
   };
 

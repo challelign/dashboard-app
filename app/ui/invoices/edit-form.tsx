@@ -1,5 +1,5 @@
 'use client';
-
+import { useEffect } from 'react';
 import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
 import {
   CheckIcon,
@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { updateInvoice } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
+import toast from 'react-hot-toast';
+import { redirect } from 'next/navigation';
 
 export default function EditInvoiceForm({
   invoice,
@@ -22,9 +24,20 @@ export default function EditInvoiceForm({
   // console.log(invoice);
   // console.log(customers);
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
-  const initialState = { message: null, errors: {} };
+  const initialState = {
+    message: null,
+    errors: {},
+    success: false,
+  };
 
   const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success(state.message);
+      redirect('/dashboard/invoices');
+    }
+  }, [state.success, state.message]);
   return (
     // <form action={updateInvoiceWithId}>
     <form action={dispatch}>
